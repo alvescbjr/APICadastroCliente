@@ -40,49 +40,40 @@ switch ($metodoHttp) {
 
         if ($paginacao === false) {
             $result = $controller->findOneBy($idOuPagina);
-
-            print json_encode($result);
-
-            if ($result["status"]) {
-                http_response_code(200);
-                exit;
-            }
-
-            http_response_code(404);
-            exit;
         }
 
-        $result = $controller->findBy($idOuPagina);
-
-        print json_encode($result);
-
-        if ($result["status"]) {
-            http_response_code(200);
-            exit;
+        if ($paginacao) {
+            $result = $controller->findBy($idOuPagina);
         }
 
-        http_response_code(404);
-        exit;
-    
+        http_response_code($result["codigoHttp"]);
+        unset($result["codigoHttp"]);
+        print json_encode($result);    
     break;
     case "POST":
         $data = json_decode($corpoSolicitacao, true);
         $result = $controller->insert($data);
 
+        http_response_code($result["codigoHttp"]);
+        unset($result["codigoHttp"]);
         print json_encode($result);
-
-        if ($result["status"]) {
-            http_response_code(201);
-            exit;
-        }
-
-        http_response_code(400);
     break;
     case "PUT":
+        $data = json_decode($corpoSolicitacao, true);
+        $result = $controller->update($idOuPagina, $data);
 
+        http_response_code($result["codigoHttp"]);
+        unset($result["codigoHttp"]);
+        print json_encode($result);
     break;
     case "DELETE":
+        if ($paginacao === false) {
+            $result = $controller->remove($idOuPagina);
 
+            http_response_code($result["codigoHttp"]);
+            unset($result["codigoHttp"]);
+            print json_encode($result);
+        }
     break;
     default:
         http_response_code(405);

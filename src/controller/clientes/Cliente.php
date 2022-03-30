@@ -10,7 +10,6 @@ use Alvescbjr\ApiCadastroCliente\trait\APIRecursos;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use PDOException;
 use RuntimeException;
 
 final class Cliente implements ControleDeSolicitacoesAPI
@@ -34,13 +33,15 @@ final class Cliente implements ControleDeSolicitacoesAPI
 
             if (sizeof($lista) <= 0) {
                 return [
-                    "status"    => true,
-                    "detalhes"  => "Sem registros!"
+                    "status"        => true,
+                    "detalhes"      => "Sem registros!",
+                    "codigoHttp"    => 404
                 ];
             }
 
             $arrClientes["pagination"]  = $this->paginacao(EntidadeCliente::class);
             $arrClientes["status"]      = true;
+            $arrClientes["codigoHttp"]  = 200;
             $arrClientes["results"]     = [];
 
             foreach ($lista as $cliente) {
@@ -57,9 +58,9 @@ final class Cliente implements ControleDeSolicitacoesAPI
             return $arrClientes;
         } catch(Exception $e) {
             return [
-                "status"    => false,
-                "detalhes"  => "Não foi possível realizar a listagem!",
-                "ex"        => $e->getMessage()
+                "status"        => false,
+                "detalhes"      => "Não foi possível realizar a listagem!",
+                "codigoHttp"    => 500
             ];
         }
     }
@@ -73,13 +74,15 @@ final class Cliente implements ControleDeSolicitacoesAPI
 
             if (is_null($cliente)) {
                 return [
-                    "status"    => false,
-                    "detalhes"  => "Cliente não encontrado!"
+                    "status"        => false,
+                    "detalhes"      => "Cliente não encontrado!",
+                    "codigoHttp"    => 404
                 ];
             }
 
             $infoCliente                                = [];
             $infoCliente["status"]                      = true;
+            $infoCliente["codigoHttp"]                  = 200;
             $infoCliente["results"]["id"]               = $cliente->getId();
             $infoCliente["results"]["nome"]             = $cliente->getNome();
             $infoCliente["results"]["cpf"]              = $cliente->getCpf();
@@ -90,8 +93,9 @@ final class Cliente implements ControleDeSolicitacoesAPI
 
         } catch(Exception $e) {
             return [
-                "status"    => false,
-                "detalhes"  => "Não foi possível realizar a consulta!"
+                "status"        => false,
+                "detalhes"      => "Não foi possível realizar a consulta!",
+                "codigoHttp"    => 500
             ];
         }
     }
@@ -111,29 +115,86 @@ final class Cliente implements ControleDeSolicitacoesAPI
             $this->entityManager->flush();
 
             return [
-                "status"    => true,
-                "detalhes"  => "Cliente cadastrado com sucesso! ID: {$novoCliente->getId()}"
+                "status"        => true,
+                "detalhes"      => "Cliente cadastrado com sucesso! ID: {$novoCliente->getId()}",
+                "codigoHttp"    => 201
             ];
 
         }catch (Exception $e) {
             $detalhes = "Não foi possível realizar o cadastro! " . $this->tratarExceptionNaInsercao($e->getMessage());
 
             return [
-                "status"    => false,
-                "detalhes"  => $detalhes,
-                "ex"        => $e->getMessage()
+                "status"        => false,
+                "detalhes"      => $detalhes,
+                "codigoHttp"    => 500
+
             ];
         }
     }
 
     public function update(int $id, array $data): array
     {
-        return [];
+        try {
+            $cliente = $this->entityManager->find(EntidadeCliente::class, $id);
+
+            if (is_null($cliente)) {
+                return [
+                    "status"        => false,
+                    "detalhes"      => "Cliente de ID: {$id} não encontrado!",
+                    "codigoHttp"    => 404
+                ];
+            }
+
+            $cliente->setNome($data["nome"])
+            ->setCpf($data["cpf"])
+            ->setDataNascimento($data["data_nascimento"]);
+
+            $this->entityManager->flush();
+
+            return [
+                "status"        => true,
+                "detalhes"      => "Cliente de ID: {$id} Atualizado com sucesso!",
+                "codigoHttp"    => 200
+            ];
+
+        } catch(Exception $e) {
+            return [
+                "status"        => false,
+                "detalhes"      => "Não foi possível atualizar!",
+                "codigoHttp"    => 500
+            ];
+        }
     }
 
     public function remove(int $id): array
     {
-        return [];
+        try {
+            $cliente = $this->entityManager->find(EntidadeCliente::class, $id);
+
+            if (is_null($cliente)) {
+                return [
+                    "status"        => false,
+                    "detalhes"      => "Cliente de ID: {$id} não encontrado!",
+                    "codigoHttp"    => 404
+                ];
+            }
+
+            $this->entityManager->remove($cliente);
+            $this->entityManager->flush();
+
+            return [
+                "status"        => true,
+                "detalhes"      => "Cliente de ID: {$id} Excluído com sucesso!",
+                "codigoHttp"    => 200
+            ];
+
+        } catch(Exception $e) {
+            return [
+                "status"        => false,
+                "detalhes"      => "Não foi possível remover o registro!",
+                "codigoHttp"    => 500
+            ];
+        }
     }
 
     private function tratarArrayDeTelefones(EntidadeCliente &$novoCliente, array $telefones) : void
@@ -150,7 +211,7 @@ final class Cliente implements ControleDeSolicitacoesAPI
         }
     } 
     /**
-     * Se a exception possuir a palavra violação é retornado
+     * Se a exception possuir a palavra violação é retornado a mensagem da exception (getMessage())
      */
     private function tratarExceptionNaInsercao(string $exception) : string
     {
