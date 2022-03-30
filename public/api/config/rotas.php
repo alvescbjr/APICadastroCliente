@@ -1,6 +1,6 @@
 <?php
 
-use Alvescbjr\API\controller;
+use  Alvescbjr\ApiCadastroCliente\controller\clientes\Cliente;
 
 $rotas = [
     "clientes" => Cliente::class

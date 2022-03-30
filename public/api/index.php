@@ -15,7 +15,7 @@ $uri                = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
 $params             = explode("/", $uri);
 $params             = UtilsAPI::removerIndiceComValorVazio($params);
 $rota               = (isset($params[1])) ? $params[1] : "";
-$idOuPagina         = (isset($params[2])) ? $params[2] : "";
+$idOuPagina         = (isset($params[2])) ? $params[2] : 0;
 $paginacao          = (isset($params[3]) && $params[3] === "list") ? true : false;
 $metodoHttp         = $_SERVER["REQUEST_METHOD"];
 $corpoSolicitacao   = file_get_contents("php://input");
@@ -37,10 +37,46 @@ $controller = new $controller();
 
 switch ($metodoHttp) {
     case "GET":
+
+        if ($paginacao === false) {
+            $result = $controller->findOneBy($idOuPagina);
+
+            print json_encode($result);
+
+            if ($result["status"]) {
+                http_response_code(200);
+                exit;
+            }
+
+            http_response_code(404);
+            exit;
+        }
+
+        $result = $controller->findBy($idOuPagina);
+
+        print json_encode($result);
+
+        if ($result["status"]) {
+            http_response_code(200);
+            exit;
+        }
+
+        http_response_code(404);
+        exit;
     
     break;
     case "POST":
-    
+        $data = json_decode($corpoSolicitacao, true);
+        $result = $controller->insert($data);
+
+        print json_encode($result);
+
+        if ($result["status"]) {
+            http_response_code(201);
+            exit;
+        }
+
+        http_response_code(400);
     break;
     case "PUT":
 

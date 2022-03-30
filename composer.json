@@ -1,6 +1,5 @@
 {
-    "name": "alvescbjr/api-cadastro-cliente",
-    "description": "Uma API em REST para cadastrar cliente e endere\u0000o utilizando ORM Doctrine",
+    "name": "alvescbjr/01teste",
     "autoload": {
         "psr-4": {
             "Alvescbjr\\ApiCadastroCliente\\": "src/",
@@ -9,13 +8,13 @@
     },
     "authors": [
         {
-            "name": "Francisco de Assis",
+            "name": "FranciscoAssis",
             "email": "alvescbjr@gmail.com"
         }
     ],
     "require": {
-        "doctrine/orm": "^2.11",
-        "symfony/cache": "^6.0",
+        "doctrine/orm": "2.11",
+        "symfony/cache": "6.0",
         "doctrine/annotations": "^1.13"
     }
 }
