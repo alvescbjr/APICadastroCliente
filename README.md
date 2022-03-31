@@ -66,7 +66,12 @@ git clone https://github.com/alvescbjr/APICadastroCliente.git
 ````
 2. Ou você pode realizar o download do zip do projeto através do botão code aqui no github.
 
-3. Agora é só realizar as requisições através do **postman**.
+3. Realize o seguinte comando para realizar download das dependências:
+````
+composer install
+````
+
+4. Agora é só realizar as requisições através do **postman**.
 
 ## Documentação
 
