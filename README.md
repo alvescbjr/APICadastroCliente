@@ -5,7 +5,7 @@ Hoje em dia é primordial criar e consumir API para facilitar e auxiliar nas tar
 
 ## Configurações Iniciais
 
-Vamos utilizar um virtual Host usando XAMPP no windows, mas abaixo será explicado o passo à passo para configuração do host.
+Vamos utilizar um virtual Host usando XAMPP no windows, mas abaixo será explicado o passo a passo para configuração do host.
 
 
 Abaixo a lista de pré-requisitos de utilização da API:
